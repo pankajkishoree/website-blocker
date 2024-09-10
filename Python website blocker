@@ -1,0 +1,37 @@
+import time
+from datetime import datetime as dt
+
+# Step 1: Path to the hosts file
+hosts_path = "/etc/hosts"  # For Linux and macOS
+# hosts_path = r"C:\Windows\System32\drivers\etc\hosts"  # For Windows
+
+# Step 2: Redirection IP address
+redirect = "127.0.0.1"
+
+# Step 3: List of websites to block
+website_list = ["www.facebook.com", "facebook.com", "www.youtube.com", "youtube.com"]
+
+# Step 4: Blocking Schedule
+start_hour = 9  # Block websites after 9 AM
+end_hour = 17  # Unblock after 5 PM
+
+while True:
+    # Check the current time
+    if start_hour <= dt.now().hour < end_hour:
+        print("Working hours... Blocking websites")
+        with open(hosts_path, "r+") as file:
+            content = file.read()
+            for website in website_list:
+                if website not in content:
+                    file.write(redirect + " " + website + "\n")
+    else:
+        print("Non-working hours... Unblocking websites")
+        with open(hosts_path, "r+") as file:
+            content = file.readlines()
+            file.seek(0)
+            for line in content:
+                if not any(website in line for website in website_list):
+                    file.write(line)
+            file.truncate()
+
+    time.sleep(5)  # Check every 5 seconds
